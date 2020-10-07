@@ -1,8 +1,10 @@
 import React from 'react';
 import { Form, Formik } from 'formik';
-import { FormControl, FormLabel, Input, FormErrorMessage, Box, Button } from '@chakra-ui/core';
+import { Box, Button } from '@chakra-ui/core';
 import { Wrapper } from '../components/Wrapper';
 import { InputField } from '../components/InputField';
+import { useMutation } from 'urql';
+import { Exact, useRegisterMutation } from '../generated/graphql';
 
 interface registerProps {}
 const initialValues = {
@@ -10,11 +12,16 @@ const initialValues = {
 	password: ''
 };
 
-const submitHandler = (values) => {
-	console.log(values);
-};
-
+type Values = Exact<{ username: string; password: string }>;
 const Register: React.FC<registerProps> = ({}) => {
+	const [
+		,
+		register
+	] = useRegisterMutation();
+	const submitHandler = async (values: Values) => {
+		// console.log(values);
+		const response = await register(values);
+	};
 	return (
 		<Wrapper variant="small">
 			<Formik initialValues={initialValues} onSubmit={submitHandler}>
