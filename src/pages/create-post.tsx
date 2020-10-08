@@ -7,6 +7,7 @@ import { useCreatePostMutation } from '../generated/graphql';
 import { useRouter } from 'next/router';
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlClient';
+import { useIsAuth } from '../utils/useIsAuth';
 
 const initialValues = {
 	title: '',
@@ -15,6 +16,7 @@ const initialValues = {
 
 const CreatePost: React.FC<{}> = ({}) => {
 	const router = useRouter();
+	useIsAuth();
 	const [
 		,
 		createPost
@@ -25,8 +27,10 @@ const CreatePost: React.FC<{}> = ({}) => {
 				initialValues={initialValues}
 				onSubmit={async (values, { setErrors }) => {
 					// console.log(values);
-					await createPost({ ...values });
-					router.push('/');
+					const { error } = await createPost({ ...values });
+					if (!error) {
+						router.push('/');
+					}
 				}}
 			>
 				{({ isSubmitting }) => (

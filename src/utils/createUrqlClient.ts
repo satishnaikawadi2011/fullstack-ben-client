@@ -1,8 +1,22 @@
 import { LogoutMutation } from './../generated/graphql';
-import { dedupExchange, fetchExchange } from 'urql';
+import { dedupExchange, fetchExchange ,Exchange} from 'urql';
 import { LoginMutation, MeQuery, MeDocument, RegisterMutation } from '../generated/graphql';
 import { betterUpdateQuery } from './betterUpdateQuery';
 import { cacheExchange } from '@urql/exchange-graphcache';
+import {pipe,tap} from 'wonka'
+import Router from 'next/router'
+// TODO: Global error handling
+const errorExchange:Exchange = ({forward}) => ops$ => {
+	return pipe(
+		forward(ops$),
+		tap(({error}) => {
+			if(error?.message.includes("Not authenticated")){
+				Router.replace('/login')
+			}
+		})
+	)
+}
+
 
 export const createUrqlClient = (ssrExchange: any) => ({
 	url: 'http://localhost:4000/graphql',
@@ -66,6 +80,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
 							}
 					}
 			}),
+			errorExchange,
 			ssrExchange,
 			fetchExchange
 		]
